@@ -6,6 +6,9 @@ class Product {
   final int stock;
   final String status;
   final int companyId;
+  final String imageUrl;
+  final DateTime createdAt;
+  final DateTime? publishedAt;
 
   const Product({
     required this.id,
@@ -15,6 +18,9 @@ class Product {
     required this.stock,
     required this.status,
     required this.companyId,
+    required this.imageUrl,
+    required this.createdAt,
+    this.publishedAt,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -22,10 +28,15 @@ class Product {
       id: json['id'],
       name: json['name'],
       description: json['description'],
-      price: json['price'],
+      price: (json['price'] as num).toDouble(),
       stock: json['stock'],
       status: json['status'],
       companyId: json['companyId'],
+      imageUrl: json['imageUrl'],
+      createdAt: DateTime.parse(json['createdAt']),
+      publishedAt: json['publishedAt'] != null
+          ? DateTime.parse(json['publishedAt'])
+          : null,
     );
   }
 }

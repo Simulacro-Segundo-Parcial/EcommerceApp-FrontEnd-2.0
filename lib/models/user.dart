@@ -3,43 +3,29 @@ class User {
   final String email;
   final String fullName;
   final String role;
+  final bool isActive;
   final int? companyId;
+  final DateTime createdAt;
 
   const User({
     required this.id,
     required this.email,
     required this.fullName,
     required this.role,
+    required this.isActive,
     this.companyId,
+    required this.createdAt,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    // Manejar role numérico o string
-    String roleValue;
-    if (json['role'] is int) {
-      switch (json['role']) {
-        case 0:
-          roleValue = 'Admin';
-          break;
-        case 1:
-          roleValue = 'CompanyAdmin';
-          break;
-        case 2:
-          roleValue = 'Customer';
-          break;
-        default:
-          roleValue = 'Unknown';
-      }
-    } else {
-      roleValue = json['role'] ?? 'Unknown';
-    }
-
     return User(
       id: json['id'],
       email: json['email'],
       fullName: json['fullName'],
-      role: roleValue,
+      role: json['role'] ?? 'Unknown', // API siempre devuelve string
+      isActive: json['isActive'],
       companyId: json['companyId'],
+      createdAt: DateTime.parse(json['createdAt']),
     );
   }
 }

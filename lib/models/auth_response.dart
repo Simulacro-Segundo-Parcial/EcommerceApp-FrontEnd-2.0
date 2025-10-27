@@ -1,9 +1,9 @@
-import 'user.dart'; // Importa User desde el archivo separado
+import 'user.dart';
 
 class AuthResponse {
   final String token;
   final User user;
-  final String? expiration;
+  final DateTime? expiration;
 
   const AuthResponse({
     required this.token,
@@ -15,7 +15,9 @@ class AuthResponse {
     return AuthResponse(
       token: json['token'],
       user: User.fromJson(json['user']),
-      expiration: json['expiration'],
+      expiration: json['expiration'] != null
+          ? DateTime.parse(json['expiration'])
+          : null,
     );
   }
 }
