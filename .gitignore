@@ -1,0 +1,90 @@
+# ============================
+# Flutter / Dart
+# ============================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+!**/ios/Flutter/.generated/
+!**/ios/Flutter/flutter_export_environment.sh
+
+# ============================
+# IDEs y Editores
+# ============================
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+
+# Android Studio / IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Xcode
+**/DerivedData/
+**/Pods/
+**/.symlinks/
+**/xcuserdata/
+**/profile
+**/release
+*.xcworkspace
+
+# ============================
+# Sistema / Archivos temporales
+# ============================
+.DS_Store
+*.log
+*.tmp
+*.swp
+*.swo
+*.class
+*.lock
+*.bak
+*.old
+Thumbs.db
+ehthumbs.db
+
+# ============================
+# Android
+# ============================
+/android/app/debug
+/android/app/profile
+/android/app/release
+/android/.gradle/
+android/local.properties
+android/key.properties
+
+# ============================
+# iOS
+# ============================
+ios/Flutter/Flutter.podspec
+ios/.generated/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/ephemeral/
+
+# ============================
+# Web
+# ============================
+web/.dart_tool/
+web/.sass-cache/
+
+# ============================
+# macOS / Linux / Windows
+# ============================
+macos/Flutter/ephemeral/
+linux/Flutter/ephemeral/
+windows/flutter/ephemeral/
