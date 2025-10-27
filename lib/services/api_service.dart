@@ -5,6 +5,7 @@ import '../models/auth_response.dart';
 import '../models/product.dart';
 import '../models/company.dart';
 import '../models/cart_item.dart';
+import '../models/user.dart';
 
 class ApiService {
   static const String baseUrl = 'http://localhost:5238';
@@ -39,16 +40,19 @@ class ApiService {
     return headers;
   }
 
-  // Auth
+    // ================= Auth =================
   static Future<AuthResponse> login(String email, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/auth/login'),
       headers: _getHeaders(),
-      body: jsonEncode({'email': email, 'password': password}),
+      body: jsonEncode({'email': email, 'password': password}), // password con minúscula
     );
+
+    print('Login response body: ${response.body}'); // debug
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+      print('Parsed JSON data: $data'); // debug
       final authResponse = AuthResponse.fromJson(data);
       await setToken(authResponse.token);
       return authResponse;
@@ -56,7 +60,7 @@ class ApiService {
       throw Exception('Error en login: ${response.body}');
     }
   }
-
+  
   static Future<AuthResponse> register(String email, String password, String fullName) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/auth/register'),
@@ -74,7 +78,24 @@ class ApiService {
     }
   }
 
-  // Products
+  // Email check
+  static Future<bool> checkEmailExists(String email) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/auth/check-email?email=$email'),
+      headers: _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['exists'] == true;
+    } else if (response.statusCode == 404) {
+      return false;
+    } else {
+      throw Exception('Error verificando email: ${response.body}');
+    }
+  }
+
+  // ================= Products =================
   static Future<List<Product>> getProducts() async {
     final response = await http.get(Uri.parse('$baseUrl/api/products'), headers: _getHeaders());
     if (response.statusCode == 200) {
@@ -114,7 +135,20 @@ class ApiService {
     }
   }
 
-  // Companies
+  static Future<Product> publishProduct(int productId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/products/$productId/publish'),
+      headers: _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      return Product.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Error publicando producto: ${response.body}');
+    }
+  }
+
+  // ================= Companies =================
   static Future<List<Company>> getCompanies() async {
     final response = await http.get(Uri.parse('$baseUrl/api/companies'), headers: _getHeaders());
     if (response.statusCode == 200) {
@@ -125,12 +159,66 @@ class ApiService {
     }
   }
 
-  // Shopping Cart
+  static Future<Company> createCompany({
+    required String name,
+    required String description,
+    required String industry,
+    required String address,
+    required String logoUrl,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/companies'),
+      headers: _getHeaders(),
+      body: jsonEncode({
+        'name': name,
+        'description': description,
+        'industry': industry,
+        'address': address,
+        'logoUrl': logoUrl,
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      return Company.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Error creando empresa: ${response.body}');
+    }
+  }
+
+  // ================= Users =================
+  static Future<List<User>> getUsers() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/users'),
+      headers: _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((e) => User.fromJson(e)).toList();
+    } else {
+      throw Exception('Error obteniendo usuarios: ${response.body}');
+    }
+  }
+
+  static Future<User> getUserById(int id) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/users/$id'),
+      headers: _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      return User.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Error obteniendo usuario: ${response.body}');
+    }
+  }
+
+  // ================= Shopping Cart =================
   static Future<List<CartItem>> getCart() async {
     final response = await http.get(Uri.parse('$baseUrl/api/shoppingcart'), headers: _getHeaders());
     if (response.statusCode == 200) {
-      final List data = jsonDecode(response.body);
-      return data.map((e) => CartItem.fromJson(e)).toList();
+      final data = jsonDecode(response.body);
+      return (data['items'] as List).map((e) => CartItem.fromJson(e)).toList();
     } else {
       throw Exception('Error obteniendo carrito: ${response.body}');
     }
@@ -148,20 +236,26 @@ class ApiService {
     }
   }
 
-  // Email check
-  static Future<bool> checkEmailExists(String email) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/api/auth/check-email?email=$email'),
+  static Future<void> removeFromCart(int productId, int quantity) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/shoppingcart/remove'),
+      headers: _getHeaders(),
+      body: jsonEncode({'productId': productId, 'quantity': quantity}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Error removiendo del carrito: ${response.body}');
+    }
+  }
+
+  static Future<void> clearCart() async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/api/shoppingcart/clear'),
       headers: _getHeaders(),
     );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['exists'] == true;
-    } else if (response.statusCode == 404) {
-      return false;
-    } else {
-      throw Exception('Error verificando email: ${response.body}');
+    if (response.statusCode != 204) {
+      throw Exception('Error limpiando carrito: ${response.body}');
     }
   }
 }
