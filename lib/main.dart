@@ -8,6 +8,7 @@ import 'screens/product_list_screen.dart';
 import 'screens/product_detail_screen.dart';
 import 'screens/cart_screen.dart';
 import 'screens/create_product_screen.dart';
+import 'screens/register_company_screen.dart';
 // import 'screens/admin_screen.dart'; // Futuro: pantalla de administración
 
 void main() {
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         '/product_detail': (context) => const ProductDetailScreen(),
         '/cart': (context) => const CartScreen(),
         '/create_product': (context) => const CreateProductScreen(),
+        '/register_company': (context) => const RegisterCompanyScreen(),
         // '/admin': (context) => const AdminScreen(), // Por implementar
       },
     );
