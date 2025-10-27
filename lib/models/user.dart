@@ -1,7 +1,7 @@
 enum UserRole {
-  Customer,
-  Admin,
-  // otros roles si existen
+  admin,        // 0 - Coincide con Admin en backend
+  companyAdmin, // 1 - Coincide con CompanyAdmin en backend
+  customer,     // 2 - Coincide con Customer en backend
 }
 
 class User {
