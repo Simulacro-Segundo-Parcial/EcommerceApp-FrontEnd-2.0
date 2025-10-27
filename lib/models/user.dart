@@ -1,8 +1,14 @@
+enum UserRole {
+  Customer,
+  Admin,
+  // otros roles si existen
+}
+
 class User {
   final int id;
   final String email;
   final String fullName;
-  final String role;
+  final UserRole role;  // Ahora es un enum
   final bool isActive;
   final int? companyId;
   final DateTime createdAt;
@@ -22,7 +28,7 @@ class User {
       id: json['id'],
       email: json['email'],
       fullName: json['fullName'],
-      role: json['role'] ?? 'Unknown', // API siempre devuelve string
+      role: UserRole.values[json['role']], // convierte int a enum
       isActive: json['isActive'],
       companyId: json['companyId'],
       createdAt: DateTime.parse(json['createdAt']),
