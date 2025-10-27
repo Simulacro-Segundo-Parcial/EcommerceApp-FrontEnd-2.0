@@ -40,7 +40,7 @@ class ApiService {
     return headers;
   }
 
-    // ================= Auth =================
+  // ================= Auth =================
   static Future<AuthResponse> login(String email, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/auth/login'),
@@ -48,14 +48,15 @@ class ApiService {
       body: jsonEncode({'email': email, 'password': password}), // password con minúscula
     );
 
-    print('Login response body: ${response.body}'); // debug
-
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      print('Parsed JSON data: $data'); // debug
-      final authResponse = AuthResponse.fromJson(data);
-      await setToken(authResponse.token);
-      return authResponse;
+      try {
+        final data = jsonDecode(response.body);
+        final authResponse = AuthResponse.fromJson(data);
+        await setToken(authResponse.token);
+        return authResponse;
+      } catch (e) {
+        throw Exception('Error parsing login response: $e');
+      }
     } else {
       throw Exception('Error en login: ${response.body}');
     }
@@ -69,10 +70,14 @@ class ApiService {
     );
 
     if (response.statusCode == 201) {
-      final data = jsonDecode(response.body);
-      final authResponse = AuthResponse.fromJson(data);
-      await setToken(authResponse.token);
-      return authResponse;
+      try {
+        final data = jsonDecode(response.body);
+        final authResponse = AuthResponse.fromJson(data);
+        await setToken(authResponse.token);
+        return authResponse;
+      } catch (e) {
+        throw Exception('Error parsing register response: $e');
+      }
     } else {
       throw Exception('Error en registro: ${response.body}');
     }
@@ -86,8 +91,12 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['exists'] == true;
+      try {
+        final data = jsonDecode(response.body);
+        return data['exists'] == true;
+      } catch (e) {
+        throw Exception('Error parsing email check response: $e');
+      }
     } else if (response.statusCode == 404) {
       return false;
     } else {
@@ -99,8 +108,12 @@ class ApiService {
   static Future<List<Product>> getProducts() async {
     final response = await http.get(Uri.parse('$baseUrl/api/products'), headers: _getHeaders());
     if (response.statusCode == 200) {
-      final List data = jsonDecode(response.body);
-      return data.map((e) => Product.fromJson(e)).toList();
+      try {
+        final List data = jsonDecode(response.body);
+        return data.map((e) => Product.fromJson(e)).toList();
+      } catch (e) {
+        throw Exception('Error parsing products response: $e');
+      }
     } else {
       throw Exception('Error obteniendo productos: ${response.body}');
     }
@@ -114,6 +127,9 @@ class ApiService {
     required String status,
     required int companyId,
   }) async {
+    if (status.isEmpty || companyId <= 0) {
+      throw Exception('Invalid status or companyId');
+    }
     final response = await http.post(
       Uri.parse('$baseUrl/api/products'),
       headers: _getHeaders(),
@@ -128,8 +144,12 @@ class ApiService {
     );
 
     if (response.statusCode == 201) {
-      final data = jsonDecode(response.body);
-      return Product.fromJson(data);
+      try {
+        final data = jsonDecode(response.body);
+        return Product.fromJson(data);
+      } catch (e) {
+        throw Exception('Error parsing create product response: $e');
+      }
     } else {
       throw Exception('Error creando producto: ${response.body}');
     }
@@ -142,7 +162,11 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return Product.fromJson(jsonDecode(response.body));
+      try {
+        return Product.fromJson(jsonDecode(response.body));
+      } catch (e) {
+        throw Exception('Error parsing publish product response: $e');
+      }
     } else {
       throw Exception('Error publicando producto: ${response.body}');
     }
@@ -152,8 +176,12 @@ class ApiService {
   static Future<List<Company>> getCompanies() async {
     final response = await http.get(Uri.parse('$baseUrl/api/companies'), headers: _getHeaders());
     if (response.statusCode == 200) {
-      final List data = jsonDecode(response.body);
-      return data.map((e) => Company.fromJson(e)).toList();
+      try {
+        final List data = jsonDecode(response.body);
+        return data.map((e) => Company.fromJson(e)).toList();
+      } catch (e) {
+        throw Exception('Error parsing companies response: $e');
+      }
     } else {
       throw Exception('Error obteniendo empresas: ${response.body}');
     }
@@ -166,6 +194,9 @@ class ApiService {
     required String address,
     required String logoUrl,
   }) async {
+    if (logoUrl.isEmpty) {
+      throw Exception('logoUrl cannot be empty');
+    }
     final response = await http.post(
       Uri.parse('$baseUrl/api/companies'),
       headers: _getHeaders(),
@@ -179,7 +210,11 @@ class ApiService {
     );
 
     if (response.statusCode == 201) {
-      return Company.fromJson(jsonDecode(response.body));
+      try {
+        return Company.fromJson(jsonDecode(response.body));
+      } catch (e) {
+        throw Exception('Error parsing create company response: $e');
+      }
     } else {
       throw Exception('Error creando empresa: ${response.body}');
     }
@@ -193,8 +228,12 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      final List data = jsonDecode(response.body);
-      return data.map((e) => User.fromJson(e)).toList();
+      try {
+        final List data = jsonDecode(response.body);
+        return data.map((e) => User.fromJson(e)).toList();
+      } catch (e) {
+        throw Exception('Error parsing users response: $e');
+      }
     } else {
       throw Exception('Error obteniendo usuarios: ${response.body}');
     }
@@ -207,7 +246,11 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return User.fromJson(jsonDecode(response.body));
+      try {
+        return User.fromJson(jsonDecode(response.body));
+      } catch (e) {
+        throw Exception('Error parsing user response: $e');
+      }
     } else {
       throw Exception('Error obteniendo usuario: ${response.body}');
     }
@@ -217,8 +260,12 @@ class ApiService {
   static Future<List<CartItem>> getCart() async {
     final response = await http.get(Uri.parse('$baseUrl/api/shoppingcart'), headers: _getHeaders());
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return (data['items'] as List).map((e) => CartItem.fromJson(e)).toList();
+      try {
+        final data = jsonDecode(response.body);
+        return (data['items'] as List).map((e) => CartItem.fromJson(e)).toList();
+      } catch (e) {
+        throw Exception('Error parsing cart response: $e');
+      }
     } else {
       throw Exception('Error obteniendo carrito: ${response.body}');
     }
